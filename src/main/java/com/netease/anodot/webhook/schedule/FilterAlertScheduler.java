@@ -75,6 +75,7 @@ public class FilterAlertScheduler {
                 for (BaseAlert alert : notis.getAlerts()) {
                     content += alert.toString() + "\n";
                 }
+                logger.info(content);
 //                popoService.popoNotify(userGroup.getEmails(), content);
             }
         }
