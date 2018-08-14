@@ -28,9 +28,14 @@ public class AlertServiceImpl implements AlertService {
         return alertRepository.insert(alert);
     }
 
-    public List<BaseAlert> getAlerts() {
+    @Override
+    public List<BaseAlert> listAlertsByTime(String startTime, String endTime) {
+        logger.info("Filter alerts from {} to {} ", startTime, endTime);
+        return alertRepository.findByCreateTimeBetween(startTime, endTime);
+    }
 
-        return null;
+    public List<BaseAlert> getAlerts() {
+        return alertRepository.findAll();
     }
 
 }

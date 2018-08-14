@@ -12,11 +12,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "alerts")
 public class BaseAlert {
 
+    // 标记是否已读
+    private Boolean isRead;
     private String subject;
     private String severity;
     private String description;
     private String startTime;
     private String startTimeEpoch;
+    private AlertType alertType;
+    // 插入数据库的时间
+    private String createTime;
 
     public String getSubject() {
         return subject;
