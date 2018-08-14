@@ -23,6 +23,30 @@ public class BaseAlert {
     // 插入数据库的时间
     private String createTime;
 
+    public Boolean getRead() {
+        return isRead;
+    }
+
+    public void setRead(Boolean read) {
+        isRead = read;
+    }
+
+    public AlertType getAlertType() {
+        return alertType;
+    }
+
+    public void setAlertType(AlertType alertType) {
+        this.alertType = alertType;
+    }
+
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
     public String getSubject() {
         return subject;
     }
@@ -66,11 +90,14 @@ public class BaseAlert {
     @Override
     public String toString() {
         return "BaseAlert{" +
-                "subject='" + subject + '\'' +
+                "isRead=" + isRead +
+                ", subject='" + subject + '\'' +
                 ", severity='" + severity + '\'' +
                 ", description='" + description + '\'' +
                 ", startTime='" + startTime + '\'' +
                 ", startTimeEpoch='" + startTimeEpoch + '\'' +
+                ", alertType=" + alertType +
+                ", createTime='" + createTime + '\'' +
                 '}';
     }
 }
