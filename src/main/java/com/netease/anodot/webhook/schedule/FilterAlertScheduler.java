@@ -1,5 +1,7 @@
 package com.netease.anodot.webhook.schedule;
 
+import com.netease.anodot.webhook.utils.Utils;
+import com.netease.anodot.webhook.entity.AlertType;
 import com.netease.anodot.webhook.entity.BaseAlert;
 import com.netease.anodot.webhook.entity.Notification;
 import com.netease.anodot.webhook.entity.user.UserGroup;
@@ -12,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class FilterAlertScheduler {
     private UserGroupService userGroupService;
     private EmailService emailService;
     private Map<String, Notification> notiMap = new HashMap<>();
-    private final static long PERIODIC_SECONDS = 30000000;
+    private final static long PERIODIC_SECONDS = 90000000;
 
     @Autowired
     public FilterAlertScheduler(AlertService alertService,
@@ -56,16 +57,21 @@ public class FilterAlertScheduler {
         String currentTime = dateFormat.format(currentTimestamp);
         String startTime = dateFormat.format(startTimestamp);
         List<BaseAlert> alertList = alertService.listAlertsByTime(startTime, currentTime);
+        logger.debug("Alert size = {} from {} to {}", alertList.size(), startTime, currentTime);
         for (int i = 0; i < alertList.size(); i++) {
             BaseAlert alert = alertList.get(i);
             Notification notification;
             String formatTime = alert.getStartTime();
-            if (notiMap.containsKey(formatTime)) {
-                notification = notiMap.get(formatTime);
+            String subject = alert.getSubject();
+            if (alert.getAlertType() == null)
+                alert.setAlertType(AlertType.ANOMALY);
+            String key = Utils.newKey(formatTime, alert.getAlertType().getName());
+            if (notiMap.containsKey(key)) {
+                notification = notiMap.get(key);
                 notification.getAlerts().add(alert);
             } else {
-                notification = new Notification();
-                notiMap.put(formatTime, notification);
+                notification = new Notification(formatTime, subject);
+                notiMap.put(key, notification);
             }
         }
         sendNotification();
@@ -78,10 +84,12 @@ public class FilterAlertScheduler {
             logger.error("User group is not exist");
             return;
         }
+        logger.info("Start all send task");
         for (String key : notiMap.keySet()) {
             Notification notis = notiMap.get(key);
             emailService.sendEmail(userGroup.getEmails(), notis);
         }
+
     }
 
 }

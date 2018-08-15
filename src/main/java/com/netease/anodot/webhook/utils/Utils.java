@@ -1,4 +1,4 @@
-package com.netease.anodot.webhook;
+package com.netease.anodot.webhook.utils;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -34,4 +34,11 @@ public final class Utils {
         return localTime;
     }
 
+    public static String newKey(String... args) {
+        StringBuilder sb = new StringBuilder();
+        for (String arg : args) {
+            sb.append(arg);
+        }
+        return sb.toString();
+    }
 }

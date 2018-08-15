@@ -15,7 +15,6 @@ public class EmailHtmlSender {
     private EmailSender emailSender;
 
     public EmailStatus send(String to, String subject, String body) {
-//        String body = templateEngine.process(templateName, context);
         return emailSender.sendHtml(to, subject, body);
     }
 }

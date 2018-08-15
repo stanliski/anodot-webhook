@@ -5,23 +5,23 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-<div>
-    <!--<h2 th:text="${title}"></span>>title</h2>-->
-    <!--<p th:text="${description}">-->
-    <!--description-->
-    <!--</p>-->
-    <tbody>
-    <tr th:each="metric:${metricsList}">
-        <td th:text="${metric.startTime}">1</td>
-        <td th:text="${metric.imageUrl}">1</td>
-        <td th:text="${metric.significance}">1</td>
-        <td th:text="${metric.name}">1</td>
-        <td th:text="${metric.duration}">1</td>
-        <td th:text="${metric.season}">1</td>
-    </tr>
-    </tbody>
 
+<div th:each="templateItem:${templateItemList}">
+    <div>
+        <h2 th:text="${templateItem.subject}"></h2>
+        <h4>异常等级:<span th:text="${templateItem.severity}" style="color:red; font-size:25px"></span></h4>
+    </div>
+    <a th:href="${templateItem.investigationUrl}">查看详情</a>
+    <div th:each="metric:${templateItem.anomalyMetrics}">
+        <h4>异常指标：<span style="color:green;" th:text="${metric.name}"></span></h4>
+        <h4>报警发生时间：<span th:text="${metric.startTime}"></span></h4>
+        <img th:src="${metric.imageUrl}"/>
+        <h5>打分：<span th:text="${metric.significance}" style="color:red; font-size:25px"></span></h5>
+        <h5>持续时间：<span th:text="${metric.duration}" style="color:red; font-size:25px"></span></h5>
+    </div>
+    <hr style="width:100%" />
 </div>
 
 </body>
 </html>
+

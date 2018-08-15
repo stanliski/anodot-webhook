@@ -10,6 +10,7 @@ import java.util.List;
  * @author Stanley Huang
  */
 public interface AlertService {
+
     BaseAlert addAlert(BaseAlert alert);
 
     List<BaseAlert> listAlertsByTime(String startTime, String endTime);
