@@ -4,6 +4,7 @@ import com.netease.anodot.webhook.entity.BaseAlert;
 import com.netease.anodot.webhook.entity.Notification;
 import com.netease.anodot.webhook.entity.user.UserGroup;
 import com.netease.anodot.webhook.service.AlertService;
+import com.netease.anodot.webhook.service.EmailService;
 import com.netease.anodot.webhook.service.TopEventService;
 import com.netease.anodot.webhook.service.UserGroupService;
 import org.slf4j.Logger;
@@ -32,19 +33,22 @@ public class FilterAlertScheduler {
     private AlertService alertService;
     private TopEventService topEventService;
     private UserGroupService userGroupService;
+    private EmailService emailService;
     private Map<String, Notification> notiMap = new HashMap<>();
-    private final static long PERIODIC_SECONDS = 300000;
+    private final static long PERIODIC_SECONDS = 30000000;
 
     @Autowired
     public FilterAlertScheduler(AlertService alertService,
                                 TopEventService topEventService,
+                                EmailService emailService,
                                 UserGroupService userGroupService) {
         this.alertService = alertService;
         this.topEventService = topEventService;
         this.userGroupService = userGroupService;
+        this.emailService = emailService;
     }
 
-    @Scheduled(cron = "0/300 * * * * ? ")   //每300秒执行一次
+    @Scheduled(cron = "0/20 * * * * ? ")   //每20秒执行一次
     public void filterLoop() {
         logger.info("Filter alerts loop happened in " + dateFormat.format(new Date()));
         long currentTimestamp = new Date().getTime();
@@ -55,12 +59,13 @@ public class FilterAlertScheduler {
         for (int i = 0; i < alertList.size(); i++) {
             BaseAlert alert = alertList.get(i);
             Notification notification;
-            if (notiMap.containsKey(alert.getStartTime())) {
-                notification = notiMap.get(alert.getStartTime());
+            String formatTime = alert.getStartTime();
+            if (notiMap.containsKey(formatTime)) {
+                notification = notiMap.get(formatTime);
                 notification.getAlerts().add(alert);
             } else {
                 notification = new Notification();
-                notiMap.put(alert.getStartTime(), notification);
+                notiMap.put(formatTime, notification);
             }
         }
         sendNotification();
@@ -68,16 +73,14 @@ public class FilterAlertScheduler {
 
     private void sendNotification() {
         UserGroup userGroup = userGroupService.getUserGroup();
+        if (userGroup == null || userGroup.getEmails() == null ||
+                userGroup.getEmails().size() == 0) {
+            logger.error("User group is not exist");
+            return;
+        }
         for (String key : notiMap.keySet()) {
             Notification notis = notiMap.get(key);
-            String content = "Happened in " + key + "\n";
-            if (notis != null && notis.getAlerts() != null) {
-                for (BaseAlert alert : notis.getAlerts()) {
-                    content += alert.toString() + "\n";
-                }
-                logger.info(content);
-//                popoService.popoNotify(userGroup.getEmails(), content);
-            }
+            emailService.sendEmail(userGroup.getEmails(), notis);
         }
     }
 

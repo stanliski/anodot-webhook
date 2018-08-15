@@ -1,5 +1,6 @@
 package com.netease.anodot.webhook.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,6 +13,7 @@ public class Notification {
     private List<BaseAlert> alerts;
 
     public Notification() {
+        this.alerts = new ArrayList<>();
     }
 
     public List<BaseAlert> getAlerts() {

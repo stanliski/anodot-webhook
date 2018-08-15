@@ -1,10 +1,10 @@
 package com.netease.anodot.webhook.controller;
 
+import com.netease.anodot.webhook.entity.AlertType;
 import com.netease.anodot.webhook.entity.ResponseContent;
 import com.netease.anodot.webhook.entity.anomaly.AnomalyAlert;
 import com.netease.anodot.webhook.entity.nodata.NoDataAlert;
 import com.netease.anodot.webhook.entity.staticAlert.StaticAlert;
-import com.netease.anodot.webhook.integrations.MailChimp;
 
 import com.netease.anodot.webhook.service.AlertService;
 import io.swagger.annotations.ApiOperation;
@@ -27,13 +27,8 @@ public class WebhookController {
 
     private AlertService alertService;
 
-    private MailChimp mailChimp;
-
     @Autowired
-    public WebhookController(
-            AlertService alertService,
-            MailChimp mailChimp) {
-        this.mailChimp = mailChimp;
+    public WebhookController(AlertService alertService) {
         this.alertService = alertService;
     }
 
@@ -55,6 +50,7 @@ public class WebhookController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseContent<Boolean> getAnomolyAlert(@RequestBody AnomalyAlert alert) {
         logger.info("Add new alert = " + alert.toString());
+        alert.setAlertType(AlertType.ANOMALY);
         AnomalyAlert newAlert = (AnomalyAlert) alertService.addAlert(alert);
         return new ResponseContent<>(true, true, "");
     }
@@ -66,6 +62,7 @@ public class WebhookController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseContent<Boolean> getNoDataAlert(@RequestBody NoDataAlert alert) {
         logger.info("Add new alert = " + alert.toString());
+        alert.setAlertType(AlertType.NO_DATA);
         NoDataAlert newAlert = (NoDataAlert) alertService.addAlert(alert);
         return new ResponseContent<>(true, true, "");
     }
@@ -77,57 +74,9 @@ public class WebhookController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseContent<Boolean> getStaticAlert(@RequestBody StaticAlert alert) {
         logger.info("Add new alert = " + alert.toString());
+        alert.setAlertType(AlertType.STATIC);
         StaticAlert newAlert = (StaticAlert) alertService.addAlert(alert);
         return new ResponseContent<>(true, true, "");
     }
-
-//    @RequestMapping(
-//            value = "/3scaleToMailChimp",
-//            method = RequestMethod.POST,
-//            produces = {MediaType.TEXT_PLAIN_VALUE},
-//            consumes = {MediaType.APPLICATION_XML_VALUE})
-//    public String process3ScaleToMailChimp(@RequestBody(required = true) String threeScaleRequest) {
-//        long startTime = System.currentTimeMillis();
-//        try {
-//            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-//            DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
-//            InputSource is = new InputSource();
-//            is.setCharacterStream(new StringReader(threeScaleRequest));
-//            Document xmlDom = docBuilder.parse(is);
-//            String orgName = null;
-//            String email = null;
-//            if (null != xmlDom) {
-//                Element eventNode = xmlDom.getDocumentElement();
-//                Element objectNode = DomUtils.getChildElementByTagName(eventNode, "object");
-//                if (null != objectNode) {
-//                    Element accountNode = DomUtils.getChildElementByTagName(objectNode, "account");
-//                    if (null != accountNode) {
-//                        Element orgNameNode = DomUtils.getChildElementByTagName(accountNode, "org_name");
-//                        orgName = DomUtils.getTextValue(orgNameNode);
-//                    }
-//                    Element usersNode = DomUtils.getChildElementByTagName(accountNode, "users");
-//                    if (null != usersNode) {
-//                        Element userNode = DomUtils.getChildElementByTagName(usersNode, "user");
-//                        email = DomUtils.getChildElementValueByTagName(userNode, "email");
-//                    }
-//                }
-//            }
-//
-//            if (null != orgName && null != email) {
-//                String response = this.mailChimp.addNewMemberToList(email, orgName, "", "");
-//                //return response;
-//            } else {
-//                throw new Exception("Something wrong in parsing XML request and getting values");
-//            }
-//        } catch (Exception ex) {
-//            this.logger.error("3ScaleToMailChimp : Caught exception at rest controller.", ex);
-//            return "FAIL";
-//        }
-//
-//        long endTime = System.currentTimeMillis();
-//        String responseTime = (endTime - startTime) + " msecs";
-//        this.logger.info("Time took for server to process this request is " + responseTime);
-//        return "SUCCESS";
-//    }
 
 }
